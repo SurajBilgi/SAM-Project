@@ -1,0 +1,54 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+venv/
+env/
+ENV/
+
+# Node
+node_modules/
+npm-debug.log*
+dist/
+.cache/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Documentation
+*.md
+docs/
+
+# Tests
+tests/
+test/
+*.test.js
+*.spec.ts
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+
+# Misc
+.env
+.env.local
+*.log
+coverage/
+.pytest_cache/
+

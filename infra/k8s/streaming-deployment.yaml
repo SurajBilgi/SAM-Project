@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: streaming-deployment
+  namespace: vision-platform
+  labels:
+    app: streaming
+    component: frame-ingestion
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: streaming
+  template:
+    metadata:
+      labels:
+        app: streaming
+        component: frame-ingestion
+    spec:
+      containers:
+      - name: streaming
+        image: vision-platform/streaming:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8001
+          name: http
+        env:
+        - name: PORT
+          value: "8001"
+        envFrom:
+        - configMapRef:
+            name: vision-platform-config
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8001
+          initialDelaySeconds: 15
+          periodSeconds: 30
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8001
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+      restartPolicy: Always
+

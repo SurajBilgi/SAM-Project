@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: vision-platform
+  labels:
+    name: vision-platform
+    environment: production
+

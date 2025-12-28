@@ -1,0 +1,85 @@
+services:
+  # Backend API Service (Control Plane)
+  api:
+    build:
+      context: ./backend
+      dockerfile: api/Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - INFERENCE_SERVICE_URL=inference:50051
+      - STREAMING_SERVICE_URL=http://streaming:8001
+      - LOG_LEVEL=INFO
+    depends_on:
+      - inference
+      - streaming
+    networks:
+      - vision-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # Streaming Service (Frame Ingestion)
+  streaming:
+    build:
+      context: ./backend
+      dockerfile: streaming/Dockerfile
+    ports:
+      - "8001:8001"
+    environment:
+      - INFERENCE_SERVICE_URL=inference:50051
+      - LOG_LEVEL=INFO
+      - MAX_FPS=30
+    depends_on:
+      - inference
+    networks:
+      - vision-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # Inference Service (CV Model)
+  inference:
+    build:
+      context: ./backend
+      dockerfile: inference/Dockerfile
+    ports:
+      - "50051:50051"
+    environment:
+      - MODEL_VERSION=v1.0.0
+      - DEVICE=cpu
+      - LOG_LEVEL=INFO
+    networks:
+      - vision-network
+    # Uncomment for GPU support
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+
+  # Frontend Service
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    environment:
+      - VITE_API_URL=http://localhost:8000
+      - VITE_WS_URL=ws://localhost:8000
+    depends_on:
+      - api
+    networks:
+      - vision-network
+
+networks:
+  vision-network:
+    driver: bridge
+
