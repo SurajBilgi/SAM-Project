@@ -1,0 +1,14 @@
+grpcio==1.59.0
+grpcio-tools==1.59.0
+protobuf==4.25.0
+numpy==1.24.3
+opencv-python-headless==4.8.1.78
+pydantic==2.5.0
+python-dotenv==1.0.0
+# SAM dependencies
+torch==2.1.0
+torchvision==0.16.0
+segment-anything==1.0
+pillow==10.1.0
+matplotlib==3.8.2
+

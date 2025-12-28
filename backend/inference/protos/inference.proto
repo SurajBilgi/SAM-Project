@@ -1,0 +1,73 @@
+syntax = "proto3";
+
+package inference;
+
+// Inference Service Definition
+service InferenceService {
+  // Run inference on a single frame
+  rpc Infer(InferenceRequest) returns (InferenceResponse);
+  
+  // Stream inference for multiple frames
+  rpc StreamInfer(stream InferenceRequest) returns (stream InferenceResponse);
+  
+  // Health check
+  rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
+}
+
+// Inference Request
+message InferenceRequest {
+  string session_id = 1;
+  int64 frame_id = 2;
+  int64 timestamp = 3;
+  bytes frame_data = 4;  // Encoded frame (JPEG/PNG)
+  int32 width = 5;
+  int32 height = 6;
+  string format = 7;  // e.g., "bgr24", "rgb24"
+}
+
+// Bounding Box (for compatibility)
+message BoundingBox {
+  float x = 1;       // Normalized 0-1
+  float y = 2;       // Normalized 0-1
+  float width = 3;   // Normalized 0-1
+  float height = 4;  // Normalized 0-1
+  float confidence = 5;
+  int32 class_id = 6;
+  string class_name = 7;
+}
+
+// Segmentation Mask
+message SegmentationMask {
+  bytes mask_data = 1;        // RLE encoded mask or binary mask
+  int32 width = 2;            // Mask width
+  int32 height = 3;           // Mask height
+  float confidence = 4;       // Mask confidence score
+  BoundingBox bbox = 5;       // Bounding box of the mask
+  int32 area = 6;             // Mask area in pixels
+}
+
+// Inference Response
+message InferenceResponse {
+  string session_id = 1;
+  int64 frame_id = 2;
+  int64 timestamp = 3;
+  repeated BoundingBox detections = 4;      // For backward compatibility
+  repeated SegmentationMask masks = 9;      // Segmentation masks
+  float inference_time_ms = 5;
+  string model_version = 6;
+  bool success = 7;
+  string error_message = 8;
+}
+
+// Health Check Request
+message HealthCheckRequest {
+  string service = 1;
+}
+
+// Health Check Response
+message HealthCheckResponse {
+  string status = 1;  // "healthy", "degraded", "unhealthy"
+  string version = 2;
+  int64 timestamp = 3;
+}
+
